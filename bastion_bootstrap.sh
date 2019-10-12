@@ -199,41 +199,6 @@ function prevent_process_snooping() {
 TEMP=`getopt -o h --longoptions help,banner:,enable:,tcp-forwarding:,x11-forwarding: -n $0 -- "$@"`
 eval set -- "${TEMP}"
 
-
-if [[ $# == 1 ]] ; then echo "No input provided! type ($0 --help) to see usage help" >&2 ; exit 1 ; fi
-
-# extract options and their arguments into variables.
-while true; do
-    case "$1" in
-        -h | --help)
-            usage
-            exit 1
-            ;;
-        --banner)
-            BANNER_PATH="$2";
-            shift 2
-            ;;
-        --enable)
-            ENABLE="$2";
-            shift 2
-            ;;
-        --tcp-forwarding)
-            TCP_FORWARDING="$2";
-            shift 2
-            ;;
-        --x11-forwarding)
-            X11_FORWARDING="$2";
-            shift 2
-            ;;
-        --)
-            break
-            ;;
-        *)
-            break
-            ;;
-    esac
-done
-
 # Call checkos to ensure platform is Linux
 checkos
 # Verify dependencies are installed.
@@ -241,11 +206,11 @@ verify_dependencies
 # Assuming it is, setup environment variables.
 setup_environment_variables
 
-## set an initial value
-SSH_BANNER="Kingsoft Cloud BASTION"
-
 # BANNER CONFIGURATION
+ENABLE="true"
 BANNER_FILE="/etc/ssh_banner"
+BANNER_PATH="https://raw.githubusercontent.com/ksc-sbt/bastion/master/ssh-banner.txt"
+
 if [[ ${ENABLE} == "true" ]];then
     if [[ -z ${BANNER_PATH} ]];then
         echo "BANNER_PATH is null skipping ..."
@@ -264,25 +229,6 @@ if [[ ${ENABLE} == "true" ]];then
     fi
 else
     echo "Banner message is not enabled!"
-fi
-
-#Enable/Disable TCP forwarding
-TCP_FORWARDING=`echo "${TCP_FORWARDING}" | sed 's/\\n//g'`
-
-#Enable/Disable X11 forwarding
-X11_FORWARDING=`echo "${X11_FORWARDING}" | sed 's/\\n//g'`
-
-echo "Value of TCP_FORWARDING - ${TCP_FORWARDING}"
-echo "Value of X11_FORWARDING - ${X11_FORWARDING}"
-if [[ ${TCP_FORWARDING} == "false" ]];then
-    awk '!/AllowTcpForwarding/' /etc/ssh/sshd_config > temp && mv temp /etc/ssh/sshd_config
-    echo "AllowTcpForwarding no" >> /etc/ssh/sshd_config
-    harden_ssh_security
-fi
-
-if [[ ${X11_FORWARDING} == "false" ]];then
-    awk '!/X11Forwarding/' /etc/ssh/sshd_config > temp && mv temp /etc/ssh/sshd_config
-    echo "X11Forwarding no" >> /etc/ssh/sshd_config
 fi
 
 release=$(osrelease)
