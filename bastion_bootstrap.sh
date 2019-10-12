@@ -195,16 +195,6 @@ function prevent_process_snooping() {
 
 ##################################### End Function Definitions
 
-# Call checkos to ensure platform is Linux
-checkos
-# Verify dependencies are installed.
-verify_dependencies
-# Assuming it is, setup environment variables.
-setup_environment_variables
-
-## set an initial value
-SSH_BANNER="Kingsoft Cloud BASTION"
-
 # Read the options from cli input
 TEMP=`getopt -o h --longoptions help,banner:,enable:,tcp-forwarding:,x11-forwarding: -n $0 -- "$@"`
 eval set -- "${TEMP}"
@@ -243,6 +233,16 @@ while true; do
             ;;
     esac
 done
+
+# Call checkos to ensure platform is Linux
+checkos
+# Verify dependencies are installed.
+verify_dependencies
+# Assuming it is, setup environment variables.
+setup_environment_variables
+
+## set an initial value
+SSH_BANNER="Kingsoft Cloud BASTION"
 
 # BANNER CONFIGURATION
 BANNER_FILE="/etc/ssh_banner"
